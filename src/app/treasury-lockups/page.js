@@ -64,7 +64,7 @@ const ViewOnSafeButton = () => (
 
 const NotConnectedMessage = () => (
   <div className="text-center py-8 leading-3">
-    <p className="text-gray-700 font-semibold">You're not connected yet...</p>
+    <p className="text-gray-700 font-semibold">You&#39;re not connected yet...</p>
     <Button
       variant="link"
       className="text-blue-500 hover:text-blue-700 p-0 text-[16px]"
