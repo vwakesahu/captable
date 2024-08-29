@@ -2,30 +2,30 @@ import React from "react";
 import { PageHeader, PageWrapper } from "@/components/pageWrapper";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Eye } from "lucide-react";
 
 const Page = () => {
   return (
     <PageWrapper>
-      <PageHeader component={<CreateTokenGrant />}>Token Grants</PageHeader>
+      <PageHeader component={<CreateTimeLock />}>Time Locks</PageHeader>
       <p className="text-gray-600 mb-8">
-        Create and manage grants to fund community projects with public
-        dashboards
+        Create, manage, and share your Time Locks with key stakeholders.
       </p>
-      <IssuedGrants />
-      <ReceivedGrants />
+      <CreatedTimeLocks />
+      <ManagedTimeLocks />
     </PageWrapper>
   );
 };
 
-const CreateTokenGrant = () => (
-  <Button variant="secondary">Create a Token Grant</Button>
+const CreateTimeLock = () => (
+  <Button variant="secondary">Create a Time Lock</Button>
 );
 
-const IssuedGrants = () => (
+const CreatedTimeLocks = () => (
   <div>
     <div className="flex flex-row items-center justify-between">
       <div className="text-xl font-semibold leading-none tracking-tight my-3">
-        Issued Grants
+        Created Time Locks
       </div>
       <ViewOnSafeButton />
     </div>
@@ -35,11 +35,11 @@ const IssuedGrants = () => (
   </div>
 );
 
-const ReceivedGrants = () => (
+const ManagedTimeLocks = () => (
   <div>
     <div className="flex flex-row items-center justify-between">
       <div className="text-xl font-semibold leading-none tracking-tight my-3">
-        Received Grants
+        Managed Time Locks
       </div>
       <ViewOnSafeButton />
     </div>
@@ -55,7 +55,7 @@ const ViewOnSafeButton = () => (
     size="sm"
     className="bg-green-100 text-green-700 border-green-200 hover:bg-green-200"
   >
-    View on Safe
+    <Eye className="mr-2 h-4 w-4" /> View on Safe
   </Button>
 );
 
@@ -68,7 +68,7 @@ const NotConnectedMessage = () => (
     >
       Connect a wallet
     </Button>
-    <span className="text-gray-600"> to see your Token Grants</span>
+    <span className="text-gray-600"> to see your Time Locks</span>
   </div>
 );
 

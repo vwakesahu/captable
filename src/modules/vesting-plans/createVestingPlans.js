@@ -20,11 +20,11 @@ const CreateVestingPlans = () => {
       <Link
         href={"/vesting-plans/create"}
         className={
-          buttonVariants({ variant: "default" }) +
+          buttonVariants({ variant: "secondary" }) +
           "h-full bg-muted text-muted-foreground hover:bg-muted-foreground/10 flex items-center justify-center gap-2 py-2.5"
         }
       >
-        <PlusIcon />
+        {/* <PlusIcon /> */}
         Create a Vesting Plan
       </Link>
     </div>

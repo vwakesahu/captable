@@ -46,7 +46,7 @@ const Page = () => {
   return (
     <PageWrapper>
       <PageHeader>Create a Vesting Plan</PageHeader>
-      <div className="flex flex-col lg:flex-row gap-8 mt-8">
+      <div className="flex flex-col lg:flex-row gap-8 mt-8 pb-4">
         <Card className="flex-1">
           <CardHeader>
             <CardTitle>Vesting Plan Details</CardTitle>
@@ -62,7 +62,7 @@ const Page = () => {
             <NavigationButtons />
           </CardContent>
         </Card>
-        <div className="flex-1">
+        <div className="w-[30%]">
           <VestingPlanSummary />
         </div>
       </div>

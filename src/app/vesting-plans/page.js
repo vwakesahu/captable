@@ -20,27 +20,31 @@ const Page = () => {
 };
 
 const IssuedVestingPlans = () => (
-  <Card className="mb-8">
-    <CardHeader className="flex flex-row items-center justify-between">
-      <CardTitle>Issued Vesting Plans</CardTitle>
+  <div>
+    <div className="flex flex-row items-center justify-between">
+      <div className="text-xl font-semibold leading-none tracking-tight my-3">
+        Issued Vesting Plans
+      </div>
       <ViewOnSafeButton />
-    </CardHeader>
-    <CardContent>
+    </div>
+    <Card className="mb-8 mt-2">
       <NotConnectedMessage />
-    </CardContent>
-  </Card>
+    </Card>
+  </div>
 );
 
 const ReceivedVestingPlans = () => (
-  <Card className="mb-8">
-    <CardHeader className="flex flex-row items-center justify-between">
-      <CardTitle>Received Vesting Plans</CardTitle>
+  <div>
+    <div className="flex flex-row items-center justify-between">
+      <div className="text-xl font-semibold leading-none tracking-tight my-3">
+        Received Vesting Plans
+      </div>
       <ViewOnSafeButton />
-    </CardHeader>
-    <CardContent>
+    </div>
+    <Card className="mb-8 mt-2">
       <NotConnectedMessage />
-    </CardContent>
-  </Card>
+    </Card>
+  </div>
 );
 
 const ViewOnSafeButton = () => (
@@ -56,7 +60,10 @@ const ViewOnSafeButton = () => (
 const NotConnectedMessage = () => (
   <div className="text-center py-8 leading-3">
     <p className="text-gray-700 font-semibold">You're not connected yet...</p>
-    <Button variant="link" className="text-blue-500 hover:text-blue-700 p-0 text-[16px]">
+    <Button
+      variant="link"
+      className="text-blue-500 hover:text-blue-700 p-0 text-[16px]"
+    >
       Connect a wallet
     </Button>
     <span className="text-gray-600">&nbsp;to see your Vesting Plans</span>
