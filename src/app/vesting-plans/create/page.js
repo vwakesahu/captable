@@ -108,7 +108,9 @@ const Page = () => {
               currentStep={currentStep}
               onStepClick={handleStepClick}
             />
-            <div className="space-y-4 max-h-[350px] overflow-auto">{renderStepContent()}</div>
+            <div className="space-y-4 max-h-[350px] overflow-auto">
+              {renderStepContent()}
+            </div>
 
             <NavigationButtons
               onNext={handleNext}

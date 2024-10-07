@@ -9,18 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@privy-io/react-auth": "^1.88.3",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "fhevmjs": "^0.5.2",
     "framer-motion": "^11.3.31",
     "lucide-react": "^0.436.0",
     "next": "14.2.7",
     "react": "^18",
     "react-dom": "^18",
     "recharts": "^2.12.7",
+    "sooner": "^1.1.4",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"
   },
