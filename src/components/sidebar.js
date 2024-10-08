@@ -19,13 +19,13 @@ import {
 
 const menuItems = [
   { icon: Piggy, label: "Vesting Plans", path: "/vesting-plans" },
-  { icon: Coins, label: "Token Grants", path: "/token-grants" },
-  { icon: Building, label: "Investor Lockups", path: "/investor-lockups" },
-  { icon: BarChart2, label: "Treasury Lockups", path: "/treasury-lockups" },
+  // { icon: Coins, label: "Token Grants", path: "/token-grants" },
+  // { icon: Building, label: "Investor Lockups", path: "/investor-lockups" },
+  // { icon: BarChart2, label: "Treasury Lockups", path: "/treasury-lockups" },
   { icon: Diamond, label: "Token Claims", path: "/token-claims" },
-  { icon: Clock, label: "Time Locks", path: "/time-locks" },
-  { icon: Briefcase, label: "LP Lockups", path: "/lp-lockups" },
-  { icon: ArrowLeftRight, label: "Treasury Swaps", path: "/treasury-swaps" },
+  // { icon: Clock, label: "Time Locks", path: "/time-locks" },
+  // { icon: Briefcase, label: "LP Lockups", path: "/lp-lockups" },
+  // { icon: ArrowLeftRight, label: "Treasury Swaps", path: "/treasury-swaps" },
 ];
 
 const Sidebar = () => {

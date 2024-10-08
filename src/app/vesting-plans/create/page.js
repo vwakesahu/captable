@@ -84,17 +84,17 @@ const Page = () => {
         address
       );
 
-      VestingInput.add64(100000).add64(0).add64(200);
+      VestingInput.add64(100000).add64(0).add64(200); //1. amount, 2. start: block.timestamp, 3. cliff
       const VestingOutput = VestingInput.encrypt();
 
       const createTx = await vestingContract.createPlan(
-        beneficiary,
-        erc20, //tokenAddress
+        "0xc6377415ee98a7b71161ee963603ee52ff7750fc", //  beneficiary,
+        ERC20_CONTRACT_ADDRESS,
         VestingOutput.handles[0],
         VestingOutput.handles[1],
         VestingOutput.handles[2],
-        10,
-        1,
+        10, // rate: no. of tokens realeased per second
+        1, // period 1 = 1 second
         VestingOutput.inputProof
       );
       await createTx.wait();
@@ -112,7 +112,7 @@ const Page = () => {
     input.add64(100000);
     const encryptedAllowanceAmount = input.encrypt();
 
-    const erc20Contract =  new Contract(
+    const erc20Contract = new Contract(
       ERC20_CONTRACT_ADDRESS,
       ENCRYPTEDERC20ABI,
       signer

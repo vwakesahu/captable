@@ -1,13 +1,24 @@
+"use client";
 import React from "react";
 import { PageHeader, PageWrapper } from "@/components/pageWrapper";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Eye } from "lucide-react";
+import RedeemPlans from "@/components/redeemPlans";
 
 const Page = () => {
   return (
     <PageWrapper>
-      <PageHeader component={<CreateTokenClaim />}>Token Claims</PageHeader>
+      <PageHeader
+        component={
+          <div className="flex items-center gap-3">
+            <CreateTokenClaim />
+            <RedeemPlans />
+          </div>
+        }
+      >
+        Token Claims
+      </PageHeader>
       <p className="text-gray-600 mb-8">
         Give your community a custom page to claim tokens with options for
         locking and revocability.
@@ -47,7 +58,9 @@ const ViewOnSafeButton = () => (
 
 const NotConnectedMessage = () => (
   <div className="text-center py-8 leading-3">
-    <p className="text-gray-700 font-semibold">You&#39;re not connected yet...</p>
+    <p className="text-gray-700 font-semibold">
+      You&#39;re not connected yet...
+    </p>
     <Button
       variant="link"
       className="text-blue-500 hover:text-blue-700 p-0 text-[16px]"
