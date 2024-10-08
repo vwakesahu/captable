@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import { PageHeader, PageWrapper } from "@/components/pageWrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,10 @@ import { useRouter } from "next/navigation";
 import { ProgressSteps } from "@/modules/vesting-plans/progress";
 import { useWalletContext } from "@/privy/walletContext";
 import {
+  ENCRYPTEDERC20ABI,
   ERC20_CONTRACT_ADDRESS,
   VESTING_CONTRACT_ADDRESS,
+  VESTINGABI,
 } from "@/utils/contracts";
 import { useFhevm } from "@/fhevm/fhevm-context";
 
@@ -51,22 +53,22 @@ const Page = () => {
   };
 
   const createVestingPlan = async () => {
-    console.log(vestingContract, tokenAddress, beneficiary, amount, duration);
-    if (
-      !vestingContract ||
-      !tokenAddress ||
-      !beneficiary ||
-      !amount ||
-      !duration
-    ) {
-      console.error("Missing required fields");
-      return;
-    }
+    console.log(tokenAddress, beneficiary, amount, duration);
+
+    const vestingContract = new Contract(
+      VESTING_CONTRACT_ADDRESS,
+      VESTINGABI,
+      signer
+    );
+    // if (!tokenAddress || !beneficiary || !amount || !duration) {
+    //   console.error("Missing required fields");
+    //   return;
+    // }
 
     try {
       const erc20 = new ethers.Contract(
         tokenAddress,
-        EncryptedERC20ABI,
+        ENCRYPTEDERC20ABI,
         signer
       );
 
@@ -74,7 +76,7 @@ const Page = () => {
       await approveVestingContract(
         erc20,
         VESTING_CONTRACT_ADDRESS,
-        ethers.utils.parseEther(amount)
+        ethers.utils.parseEther("100")
       );
 
       const VestingInput = fhevmInstance.createEncryptedInput(
@@ -102,17 +104,21 @@ const Page = () => {
     }
   };
 
-  const approveVestingContract = async (
-    erc20Contract,
-    vestingAddress,
-    amount
-  ) => {
+  const approveVestingContract = async (vestingAddress, amount) => {
     const input = fhevmInstance.createEncryptedInput(
       ERC20_CONTRACT_ADDRESS,
       address
     );
     input.add64(100000);
     const encryptedAllowanceAmount = input.encrypt();
+
+    const erc20Contract =  new Contract(
+      ERC20_CONTRACT_ADDRESS,
+      ENCRYPTEDERC20ABI,
+      signer
+    );
+
+    console.log(erc20Contract);
 
     const tx = await erc20Contract["approve(address,bytes32,bytes)"](
       VESTING_CONTRACT_ADDRESS,
