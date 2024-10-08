@@ -1,14 +1,16 @@
+'use client'
 import React from "react";
 import { PageHeader, PageWrapper } from "@/components/pageWrapper";
 import CreateVestingPlans from "@/modules/vesting-plans/createVestingPlans";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye } from "lucide-react";
+import GetBalance from "@/components/getBalance";
 
 const Page = () => {
   return (
     <PageWrapper>
-      <PageHeader component={<CreateVestingPlans />}>Vesting Plans</PageHeader>
+      <PageHeader component={<div className='flex items-center gap-3'><GetBalance /> <CreateVestingPlans /></div>}>Vesting Plans</PageHeader>
       <p className="text-gray-600 mb-8">
         Vesting plans designed for employees and contributors to vest their
         revocable token grants linearly over time.

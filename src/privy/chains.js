@@ -1,8 +1,8 @@
 export const chainsName = { inco: "Inco" };
 
 export const incoNetwork = {
-  id: 9090,
-  network: "Inco Gentry Testnet",
+  id: 9000,
+  network: "Inco Rivest Testnet",
   name: "INCO",
   nativeCurrency: {
     name: "INCO",
@@ -11,10 +11,10 @@ export const incoNetwork = {
   },
   rpcUrls: {
     default: {
-      http: ["https://testnet.inco.org/"],
+      http: ["https://validator.rivest.inco.org/"],
     },
     public: {
-      http: ["https://testnet.inco.org/"],
+      http: ["https://validator.rivest.inco.org/"],
     },
   },
   blockExplorers: {
