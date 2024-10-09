@@ -18,14 +18,16 @@ const RedeemPlans = () => {
       VESTINGABI,
       signer
     );
+    console.log('vestingContract');
     const plans = await vestingContract.plans(1);
     console.log(plans);
 
+    console.log('redeemAllPlans');
     const redeemTx = await vestingContract.redeemAllPlans();
     await redeemTx.wait();
 
     const erc20 = new Contract(tokenAddress, ENCRYPTEDERC20ABI, signer);
-
+    console.log('erc20');
     const balanceHandle = await erc20.balanceOf(address);
     console.log(balanceHandle.toString());
 

@@ -51,10 +51,8 @@ const GetBalance = () => {
         signer
       );
       const balanceHandle = await erc20Contract.balanceOf(address);
-      console.log(balanceHandle.toString());
-    //   setBalance(balanceHandle.toString());
       const balanceResult = await fhevmInstance.reencrypt(
-        balanceHandle,
+        balanceHandle.toHexString().replace("0x", ""),
         privateKey,
         publicKey,
         signature.replace("0x", ""),
@@ -81,6 +79,26 @@ const GetBalance = () => {
 
   const closeErrorModal = () => {
     setIsErrorModalOpen(false);
+  };
+  const showPlans = async () => {
+    const vestingContract = new Contract(
+      VESTING_CONTRACT_ADDRESS,
+      VESTINGABI,
+      signer
+    );
+
+    const balance = await vestingContract.balanceOf(address);
+    console.log(balance.toString());
+
+    for (let i = 0; i < balance.toNumber(); i++) {
+      const plan = await vestingContract.tokenOfOwnerByIndex(address, i);
+      const planDetails = await vestingContract.plans(1);
+      console.log(plan);
+      console.log(planDetails);
+    }
+
+    const redemeed = await vestingContract.redeemAllPlans();
+    console.log(redemeed);
   };
 
   return (
