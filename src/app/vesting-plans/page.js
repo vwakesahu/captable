@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import { PageHeader, PageWrapper } from "@/components/pageWrapper";
 import CreateVestingPlans from "@/modules/vesting-plans/createVestingPlans";
 import { Button } from "@/components/ui/button";
@@ -20,12 +20,19 @@ import {
   Calendar,
   Info,
   PlusCircle,
+  Lock,
 } from "lucide-react";
 import GetBalance from "@/components/getBalance";
 import { usePrivy } from "@privy-io/react-auth";
-import { VESTING_CONTRACT_ADDRESS, VESTINGABI } from "@/utils/contracts";
+import {
+  ENCRYPTEDERC20ABI,
+  ERC20_CONTRACT_ADDRESS,
+  VESTING_CONTRACT_ADDRESS,
+  VESTINGABI,
+} from "@/utils/contracts";
 import { useWalletContext } from "@/privy/walletContext";
 import Link from "next/link";
+import { useFhevm } from "@/fhevm/fhevm-context";
 
 const Page = () => {
   return (
@@ -91,7 +98,7 @@ const VestingPlans = () => {
 
   if (vestingPlans.length === 0 && !isLoading) {
     return (
-      <div className=' h-full w-full mt-32'>
+      <div className=" h-full w-full mt-32">
         <Card className="w-full max-w-md mx-auto mt-8">
           <CardContent className="flex flex-col items-center p-6 text-center">
             <Info className="w-12 h-12 text-blue-500 mb-4" />
@@ -178,7 +185,7 @@ const VestingPlansSummary = ({ plans }) => {
         <CardContent className="flex items-center p-6">
           <Calendar className="w-8 h-8 mr-4 text-primary" />
           <div>
-            <p className="text-sm text-gray-500">Active Plans</p>
+            <p className="text-sm text-gray-500">Total Plans</p>
             <p className="text-xl font-bold">{plans.length}</p>
           </div>
         </CardContent>
@@ -187,49 +194,103 @@ const VestingPlansSummary = ({ plans }) => {
   );
 };
 
-const VestingPlansTable = ({ plans }) => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Vesting Plan Details</CardTitle>
-    </CardHeader>
-    <CardContent>
-      {plans.length > 0 ? (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Amount</TableHead>
-              <TableHead>Cliff</TableHead>
-              <TableHead>Rate</TableHead>
-              <TableHead>Period</TableHead>
-              {/* <TableHead>Actions</TableHead> */}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {plans.map((plan, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">
-                  {safeFormatBigNumber(plan["1"]).slice(1, 6) + "..."}
-                </TableCell>
-                <TableCell>
-                  {safeFormatDuration(plan["3"]).slice(1, 6) + "..."}
-                </TableCell>
-                <TableCell>{safeFormatRate(plan["4"])} tokens/sec</TableCell>
-                <TableCell>{safeFormatDuration(plan["5"])} sec</TableCell>
-                {/* <TableCell>
-                  <Button variant="ghost" size="sm">
-                    <Eye className="w-4 h-4 mr-2" /> View
-                  </Button>
-                </TableCell> */}
+const VestingPlansTable = ({ plans }) => {
+  const { signer, address } = useWalletContext();
+  const { instance: fhevmInstance } = useFhevm();
+  const [loadingStates, setLoadingStates] = useState({});
+  const [balances, setBalances] = useState({});
+
+  const handleViewAmount = async (plan, index) => {
+    console.log("Viewing amount for plan:", plan);
+    setLoadingStates((prev) => ({ ...prev, [index]: true }));
+    try {
+      const { publicKey, privateKey } = fhevmInstance.generateKeypair();
+      const eip712 = fhevmInstance.createEIP712(
+        publicKey,
+        ERC20_CONTRACT_ADDRESS
+      );
+
+      const signature = await signer._signTypedData(
+        eip712.domain,
+        { Reencrypt: eip712.types.Reencrypt },
+        eip712.message
+      );
+
+      const balanceResult = await fhevmInstance.reencrypt(
+        plan["1"].toHexString().replace("0x", ""),
+        privateKey,
+        publicKey,
+        signature.replace("0x", ""),
+        ERC20_CONTRACT_ADDRESS,
+        address
+      );
+      const balance = balanceResult.toString();
+      console.log(balance);
+      setBalances((prev) => ({ ...prev, [index]: balance }));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch balance. Please try again.");
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [index]: false }));
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Vesting Plan Details</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {plans.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Amount</TableHead>
+                <TableHead>Cliff</TableHead>
+                <TableHead>Rate</TableHead>
+                <TableHead>Period</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
-        <EmptyPlansMessage />
-      )}
-    </CardContent>
-  </Card>
-);
+            </TableHeader>
+            <TableBody>
+              {plans.map((plan, index) => (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">
+                    {balances[index] || <Lock className="w-4 h-4 mr-2" />}{" "}
+                  </TableCell>
+                  <TableCell>
+                    {safeFormatDuration(plan["3"]).slice(1, 6) + "..."}
+                  </TableCell>
+                  <TableCell>{safeFormatRate(plan["4"])} tokens/sec</TableCell>
+                  <TableCell>{safeFormatDuration(plan["5"])} sec</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="bg-black hover:bg-black/70 w-32"
+                      onClick={() => handleViewAmount(plan, index)}
+                      disabled={loadingStates[index]}
+                    >
+                      {loadingStates[index] ? (
+                        <span className="">Loading...</span>
+                      ) : (
+                        <>
+                          <Eye className="w-4 h-4 mr-2" /> See Amount
+                        </>
+                      )}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <EmptyPlansMessage />
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const EmptyPlansMessage = () => (
   <div className="text-center py-8">

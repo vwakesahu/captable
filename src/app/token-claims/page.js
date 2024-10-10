@@ -13,7 +13,7 @@ import { toast } from "sonner";
 const Page = () => {
   return (
     <PageWrapper>
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full">
         <PageHeader>Token Claims</PageHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
           <BalanceCard />
