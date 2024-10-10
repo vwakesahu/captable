@@ -267,7 +267,7 @@ const VestingPlansTable = ({ plans }) => {
                     <Button
                       variant="default"
                       size="sm"
-                      className="bg-black hover:bg-black/70 w-32"
+                      className="bg-blue-700 hover:bg-blue-700/70 w-32"
                       onClick={() => handleViewAmount(plan, index)}
                       disabled={loadingStates[index]}
                     >
