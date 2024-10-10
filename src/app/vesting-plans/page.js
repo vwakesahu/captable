@@ -13,11 +13,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, DollarSign, Clock, Calendar } from "lucide-react";
+import {
+  Eye,
+  DollarSign,
+  Clock,
+  Calendar,
+  Info,
+  PlusCircle,
+} from "lucide-react";
 import GetBalance from "@/components/getBalance";
 import { usePrivy } from "@privy-io/react-auth";
 import { VESTING_CONTRACT_ADDRESS, VESTINGABI } from "@/utils/contracts";
 import { useWalletContext } from "@/privy/walletContext";
+import Link from "next/link";
 
 const Page = () => {
   return (
@@ -80,6 +88,31 @@ const VestingPlans = () => {
       setIsLoading(false);
     }
   };
+
+  if (vestingPlans.length === 0 && !isLoading) {
+    return (
+      <div className=' h-full w-full mt-32'>
+        <Card className="w-full max-w-md mx-auto mt-8">
+          <CardContent className="flex flex-col items-center p-6 text-center">
+            <Info className="w-12 h-12 text-blue-500 mb-4" />
+            <h2 className="text-2xl font-semibold mb-2">
+              No Vesting Plans Yet
+            </h2>
+            <p className="text-gray-600 mb-6">
+              You don't have any active vesting plans at the moment. Would you
+              like to create one?
+            </p>
+            <Link href="/vesting-plans/create">
+              <Button className="flex items-center" variant="default">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Vesting Plan
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">

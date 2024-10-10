@@ -1,36 +1,21 @@
-"use client";
-
 import Image from "next/image";
 import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
-import {
-  PiggyBank as Piggy,
-  Coins,
-  Building,
-  BarChart2,
-  Diamond,
-  Clock,
-  Briefcase,
-  ArrowLeftRight,
-} from "lucide-react";
+import { PiggyBank as Piggy, Diamond, LogOut } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
+import { useWalletContext } from "@/privy/walletContext";
 
 const menuItems = [
   { icon: Piggy, label: "Vesting Plans", path: "/vesting-plans" },
-  // { icon: Coins, label: "Token Grants", path: "/token-grants" },
-  // { icon: Building, label: "Investor Lockups", path: "/investor-lockups" },
-  // { icon: BarChart2, label: "Treasury Lockups", path: "/treasury-lockups" },
   { icon: Diamond, label: "Token Claims", path: "/token-claims" },
-  // { icon: Clock, label: "Time Locks", path: "/time-locks" },
-  // { icon: Briefcase, label: "LP Lockups", path: "/lp-lockups" },
-  // { icon: ArrowLeftRight, label: "Treasury Swaps", path: "/treasury-swaps" },
 ];
 
 const Sidebar = () => {
   const { logout } = usePrivy();
+  const { address } = useWalletContext();
   const pathname = usePathname();
 
   const containerVariants = {
@@ -48,8 +33,13 @@ const Sidebar = () => {
     visible: { x: 0, opacity: 1 },
   };
 
+  const truncateAddress = (address) => {
+    if (!address) return "";
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
   return (
-    <div className="h-screen overflow-hidden p-8 fixed md:w-[350px]">
+    <div className="h-screen overflow-hidden p-8 fixed md:w-[350px] flex flex-col border-r">
       <Image
         src="/logo/inco-blue.svg"
         alt="Logo"
@@ -57,16 +47,9 @@ const Sidebar = () => {
         height={33}
         className="cursor-pointer"
       />
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Button className="mt-8 bg-primary w-full">Logout</Button>
-      </motion.div>
 
       <motion.div
-        className="mt-8"
+        className="mt-8 flex-grow"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -94,6 +77,21 @@ const Sidebar = () => {
             );
           })}
         </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="mt-auto"
+      >
+        <Button
+          onClick={logout}
+          className="bg-primary w-full flex items-center justify-between"
+        >
+          <span className="truncate mr-2">{truncateAddress(address)}</span>
+          <LogOut className="w-5 h-5" />
+        </Button>
       </motion.div>
     </div>
   );
