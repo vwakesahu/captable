@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Eye } from "lucide-react";
 import RedeemPlans from "@/components/redeemPlans";
+import GetBalance from "@/components/getBalance";
+import { VESTING_CONTRACT_ADDRESS, VESTINGABI } from "@/utils/contracts";
+import { useWalletContext } from "@/privy/walletContext";
+import { Contract } from "ethers";
 
 const Page = () => {
   return (
@@ -12,8 +16,9 @@ const Page = () => {
       <PageHeader
         component={
           <div className="flex items-center gap-3">
+            <GetBalance />
             <CreateTokenClaim />
-            <RedeemPlans />
+            {/* <RedeemPlans /> */}
           </div>
         }
       >
@@ -28,9 +33,35 @@ const Page = () => {
   );
 };
 
-const CreateTokenClaim = () => (
-  <Button variant="secondary">Create a Token Claim</Button>
-);
+const CreateTokenClaim = () => {
+  const { address, signer } = useWalletContext();
+  const redeemAllPlans = async () => {
+    const vestingContract = new Contract(
+      VESTING_CONTRACT_ADDRESS,
+      VESTINGABI,
+      signer
+    );
+
+    const balance = await vestingContract.balanceOf(address);
+    console.log(balance.toString());
+
+    for (let i = 0; i < balance; i++) {
+      const plan = await vestingContract.tokenOfOwnerByIndex(address, i);
+      const planDetails = await vestingContract.plans(1);
+      console.log(plan);
+      console.log(planDetails);
+    }
+
+    const redemeed = await vestingContract.redeemAllPlans();
+    console.log(redemeed);
+    console.log("Redeemed all plans");
+  };
+  return (
+    <Button variant="secondary" onClick={redeemAllPlans}>
+      Redeem All Plans
+    </Button>
+  );
+};
 
 const CreatedTokenClaims = () => (
   <div>
@@ -38,7 +69,7 @@ const CreatedTokenClaims = () => (
       <div className="text-xl font-semibold leading-none tracking-tight my-3">
         Created Token Claims
       </div>
-      <ViewOnSafeButton />
+      {/* <ViewOnSafeButton /> */}
     </div>
     <Card className="mb-8 mt-2">
       <NotConnectedMessage />

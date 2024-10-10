@@ -3,6 +3,7 @@ import "./globals.css";
 import Dashboard from "@/layout/dashboard";
 import PrivyWrapper from "@/privy/privyProvider";
 import { FHEWrapper } from "@/fhevm/fheWrapper";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({ children }) {
         <PrivyWrapper>
           <FHEWrapper>
             <Dashboard>{children}</Dashboard>
+            <Toaster />
           </FHEWrapper>
         </PrivyWrapper>
       </body>

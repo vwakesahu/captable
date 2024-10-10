@@ -16,6 +16,7 @@ import {
   Briefcase,
   ArrowLeftRight,
 } from "lucide-react";
+import { usePrivy } from "@privy-io/react-auth";
 
 const menuItems = [
   { icon: Piggy, label: "Vesting Plans", path: "/vesting-plans" },
@@ -29,6 +30,7 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
+  const { logout } = usePrivy();
   const pathname = usePathname();
 
   const containerVariants = {
@@ -60,7 +62,7 @@ const Sidebar = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <Button className="mt-8 bg-primary w-full">Connect Wallet</Button>
+        <Button className="mt-8 bg-primary w-full">Logout</Button>
       </motion.div>
 
       <motion.div

@@ -17,7 +17,7 @@ export const PageWrapper = ({ children }) => {
 export const PageHeader = ({ children, component }) => {
   return (
     <motion.div
-      className="sticky top-10 flex mb-6 items-center justify-between mt-10 scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0"
+      className="sticky bg-white top-10 flex mb-6 items-center justify-between mt-10 scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}

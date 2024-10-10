@@ -4,7 +4,6 @@ import { Contract, ethers } from "ethers";
 import { PageHeader, PageWrapper } from "@/components/pageWrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { VestingPlanSummary } from "@/components/graph";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { ProgressSteps } from "@/modules/vesting-plans/progress";
@@ -16,6 +15,8 @@ import {
   VESTINGABI,
 } from "@/utils/contracts";
 import { useFhevm } from "@/fhevm/fhevm-context";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CheckCircle, Loader2 } from "lucide-react";
 
 const Page = () => {
   const router = useRouter();
@@ -25,12 +26,13 @@ const Page = () => {
     "0xc6377415ee98a7b71161ee963603ee52ff7750fc"
   );
   const [amount, setAmount] = useState("100");
-  const [duration, setDuration] = useState("");
   const [cliff, setCliff] = useState("200");
   const [rate, setRate] = useState("10");
   const [period, setPeriod] = useState("1");
   const { signer, address } = useWalletContext();
   const { instance: fhevmInstance } = useFhevm();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleStepClick = (stepIndex) => {
     if (stepIndex <= currentStep + 1) {
@@ -41,29 +43,21 @@ const Page = () => {
   const getCurrentBlockTimestamp = async () => {
     const latestBlock = await signer.provider.getBlock("latest");
     const currentTimestamp = latestBlock.timestamp;
-
-    // Convert BigInt to Number
     const timestampNumber = Number(currentTimestamp);
 
-    console.log("Original timestamp (BigInt):", currentTimestamp.toString());
-    console.log("Converted timestamp (Number):", timestampNumber);
-
-    // Check if conversion was successful and value is safe
     if (isNaN(timestampNumber) || !Number.isSafeInteger(timestampNumber)) {
       throw new Error(
         "Timestamp conversion error or value out of safe integer range"
       );
     }
 
-    console.log(typeof timestampNumber);
-
     return timestampNumber;
   };
 
   const handleNext = async () => {
     if (currentStep === 2) {
-      // getCurrentBlockTimestamp();
       await createVestingPlan();
+      setCurrentStep((prevStep) => prevStep + 1);
       return;
     }
     setCurrentStep((prevStep) => prevStep + 1);
@@ -74,6 +68,8 @@ const Page = () => {
   };
 
   const createVestingPlan = async () => {
+    setIsLoading(true);
+    setError("");
     try {
       const vestingContract = new Contract(
         VESTING_CONTRACT_ADDRESS,
@@ -88,6 +84,7 @@ const Page = () => {
       );
 
       const parsedAmount = ethers.utils.parseEther(amount);
+      console.log("Parsed amount:", parsedAmount.toString());
 
       await approveVestingContract(
         erc20,
@@ -95,19 +92,18 @@ const Page = () => {
         parsedAmount
       );
 
-      const VestingInput = fhevmInstance.createEncryptedInput(
+      const VestingInput = await fhevmInstance.createEncryptedInput(
         VESTING_CONTRACT_ADDRESS,
         address
       );
 
-      // Convert parsedAmount to a regular number that fits within 64 bits
       const scaledAmount = Number(
         ethers.utils.formatUnits(parsedAmount, "ether")
       );
 
       const blockTimestamp = await getCurrentBlockTimestamp();
       VestingInput.add64(scaledAmount)
-        .add64(blockTimestamp) // start: block.timestamp
+        .add64(blockTimestamp)
         .add64(Number(cliff));
       const VestingOutput = VestingInput.encrypt();
 
@@ -123,8 +119,13 @@ const Page = () => {
       );
       await createTx.wait();
       console.log("Vesting plan created successfully");
+      // Show success message or redirect
     } catch (error) {
       console.error("Error creating vesting plan:", error);
+      setError("Failed to create vesting plan. Please try again.");
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -134,12 +135,7 @@ const Page = () => {
     amount
   ) => {
     const input = fhevmInstance.createEncryptedInput(tokenAddress, address);
-    console.log("Amount to approve:", amount.toString());
-
-    // Convert the BigNumber to a regular number, scaling it down if necessary
     const scaledAmount = Number(ethers.utils.formatUnits(amount, "ether"));
-    console.log("Scaled amount:", scaledAmount);
-
     input.add64(scaledAmount);
     const encryptedAllowanceAmount = input.encrypt();
 
@@ -156,12 +152,10 @@ const Page = () => {
     switch (currentStep) {
       case 0:
         return (
-          <>
-            <TokenSelection
-              tokenAddress={tokenAddress}
-              setTokenAddress={setTokenAddress}
-            />
-          </>
+          <TokenSelection
+            tokenAddress={tokenAddress}
+            setTokenAddress={setTokenAddress}
+          />
         );
       case 1:
         return (
@@ -176,10 +170,15 @@ const Page = () => {
       case 2:
         return (
           <>
-            <DurationInput duration={duration} setDuration={setDuration} />
             <CliffInput cliff={cliff} setCliff={setCliff} />
             <RateInput rate={rate} setRate={setRate} />
             <PeriodInput period={period} setPeriod={setPeriod} />
+          </>
+        );
+      case 3:
+        return (
+          <>
+            <CongratulationsStep />
           </>
         );
       default:
@@ -200,20 +199,21 @@ const Page = () => {
               currentStep={currentStep}
               onStepClick={handleStepClick}
             />
-            <div className="space-y-4 max-h-[350px] overflow-auto">
-              {renderStepContent()}
-            </div>
-
+            <div className="space-y-4 px-1">{renderStepContent()}</div>
+            {error && (
+              <Alert variant="destructive">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <NavigationButtons
               onNext={handleNext}
               onBack={handleBack}
               currentStep={currentStep}
+              isLoading={isLoading}
             />
           </CardContent>
         </Card>
-        <div className="w-[40%]">
-          <VestingPlanSummary />
-        </div>
       </div>
     </PageWrapper>
   );
@@ -253,18 +253,6 @@ const AmountInput = ({ amount, setAmount }) => (
   </div>
 );
 
-const DurationInput = ({ duration, setDuration }) => (
-  <div className="space-y-2">
-    <h2 className="text-lg font-semibold">Vesting Duration (in seconds)</h2>
-    <Input
-      type="number"
-      placeholder="Enter vesting duration in seconds"
-      value={duration}
-      onChange={(e) => setDuration(e.target.value)}
-    />
-  </div>
-);
-
 const CliffInput = ({ cliff, setCliff }) => (
   <div className="space-y-2">
     <h2 className="text-lg font-semibold">Cliff (in seconds)</h2>
@@ -291,7 +279,7 @@ const RateInput = ({ rate, setRate }) => (
 
 const PeriodInput = ({ period, setPeriod }) => (
   <div className="space-y-2">
-    <h2 className="text-lg font-semibold">Release Period (in seconds)</h2>
+    <h2 className="text-lg font-semibold">Period (in seconds)</h2>
     <Input
       type="number"
       placeholder="Enter release period in seconds"
@@ -301,7 +289,7 @@ const PeriodInput = ({ period, setPeriod }) => (
   </div>
 );
 
-const NavigationButtons = ({ onNext, onBack, currentStep }) => {
+const NavigationButtons = ({ onNext, onBack, currentStep, isLoading }) => {
   const getNextButtonText = () => {
     switch (currentStep) {
       case 0:
@@ -316,12 +304,45 @@ const NavigationButtons = ({ onNext, onBack, currentStep }) => {
   };
   return (
     <div className="flex justify-between pt-4">
-      <Button variant="outline" onClick={onBack} disabled={currentStep === 0}>
+      <Button
+        variant="outline"
+        onClick={onBack}
+        disabled={currentStep === 0 || isLoading}
+      >
         ← Back
       </Button>
-      <Button onClick={onNext}>{getNextButtonText()}</Button>
+      <Button onClick={onNext} disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          getNextButtonText()
+        )}
+      </Button>
     </div>
   );
 };
 
 export default Page;
+
+const CongratulationsStep = () => {
+  const router = useRouter();
+
+  return (
+    <div className="text-center space-y-6 py-8">
+      <CheckCircle className="w-20 h-20 text-green-500 mx-auto" />
+      <h2 className="text-3xl font-bold text-gray-800">Congratulations!</h2>
+      <p className="text-xl text-gray-600">
+        Your vesting plan has been created successfully.
+      </p>
+      <Button
+        onClick={() => router.push("/vesting-plans")}
+        className="mt-6 px-6 py-3 text-lg"
+      >
+        View Vesting Plans
+      </Button>
+    </div>
+  );
+};

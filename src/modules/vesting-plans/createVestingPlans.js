@@ -14,13 +14,13 @@ import { buttonVariants } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 
-const CreateVestingPlans = () => {
+const CreateVestingPlans = ({ button = "secondary" }) => {
   return (
     <div>
       <Link
         href={"/vesting-plans/create"}
         className={
-          buttonVariants({ variant: "secondary" }) +
+          buttonVariants({ variant: button }) +
           "h-full bg-muted text-muted-foreground hover:bg-muted-foreground/10 flex items-center justify-center gap-2 py-2.5"
         }
       >

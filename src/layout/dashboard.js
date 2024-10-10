@@ -53,15 +53,11 @@ const Dashboard = ({ children }) => {
   }
 
   return (
-    <div className="w-full">
-      {/* navbar */}
-      <div className="flex w-full">
-        <div className="w-full md:w-[400px] relative">
-          <Sidebar />
-        </div>
-        <div className="w-full md:w-full">{children}</div>
-        {/* <div className="w-full md:w-[500px]">right section</div> */}
+    <div className="flex h-screen overflow-hidden">
+      <div className="w-[350px] flex-shrink-0">
+        <Sidebar />
       </div>
+      <div className="flex-grow overflow-y-auto">{children}</div>
     </div>
   );
 };

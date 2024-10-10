@@ -18,6 +18,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 // Assuming you have an ERC20 ABI defined somewhere in your project
 // import { erc20abi } from "@/utils/abis";
@@ -51,25 +52,32 @@ const GetBalance = () => {
         signer
       );
       const balanceHandle = await erc20Contract.balanceOf(address);
-      const balanceResult = await fhevmInstance.reencrypt(
-        balanceHandle.toHexString().replace("0x", ""),
-        privateKey,
-        publicKey,
-        signature.replace("0x", ""),
-        ERC20_CONTRACT_ADDRESS,
-        address
-      );
-      console.log(balanceResult);
-      const vestingContract = new Contract(
-        VESTING_CONTRACT_ADDRESS,
-        VESTINGABI,
-        signer
-      );
-      const plans = await vestingContract.plans(1);
-      console.log(plans);
-      setBalance(balanceResult.toString());
+      console.log("balanceHandle", balanceHandle);
+      if (balanceHandle.toString() === "0") {
+        toast.error("You have no balance to fetch.");
+        setBalance(null);
+      } else {
+        const balanceResult = await fhevmInstance.reencrypt(
+          balanceHandle.toHexString().replace("0x", ""),
+          privateKey,
+          publicKey,
+          signature.replace("0x", ""),
+          ERC20_CONTRACT_ADDRESS,
+          address
+        );
+        console.log(balanceResult);
+        const vestingContract = new Contract(
+          VESTING_CONTRACT_ADDRESS,
+          VESTINGABI,
+          signer
+        );
+        const plans = await vestingContract.plans(1);
+        console.log(plans);
+        setBalance(balanceResult.toString());
+      }
     } catch (err) {
       console.error(err);
+      toast.error("Failed to fetch balance. Please try again.");
       setError("Failed to fetch balance. Please try again.");
       setIsErrorModalOpen(true);
     } finally {
@@ -104,24 +112,12 @@ const GetBalance = () => {
   return (
     <div className="space-y-4">
       <Button onClick={getBalance} disabled={isLoading}>
-        {isLoading ? "Loading..." : "Get balance"}
+        {isLoading
+          ? "Loading..."
+          : balance
+          ? `Your Balance : ${balance}`
+          : "Get balance"}
       </Button>
-      {balance !== null && (
-        <Alert variant="outline">
-          <AlertDescription>Your balance: {balance}</AlertDescription>
-        </Alert>
-      )}
-      <Dialog open={isErrorModalOpen} onOpenChange={setIsErrorModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Error</DialogTitle>
-            <DialogDescription>{error}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={closeErrorModal}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
