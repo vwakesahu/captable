@@ -1,12 +1,15 @@
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
-import { PiggyBank as Piggy, Diamond, LogOut } from "lucide-react";
+import { PiggyBank as Piggy, Diamond, LogOut, Coins } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useWalletContext } from "@/privy/walletContext";
+import { ethers } from "ethers";
+import { ENCRYPTEDERC20ABI, ERC20_CONTRACT_ADDRESS } from "@/utils/contracts";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const menuItems = [
   { icon: Piggy, label: "Vesting Plans", path: "/vesting-plans" },
@@ -15,8 +18,10 @@ const menuItems = [
 
 const Sidebar = () => {
   const { logout } = usePrivy();
-  const { address } = useWalletContext();
+  const { address, signer } = useWalletContext();
   const pathname = usePathname();
+  const [isMinting, setIsMinting] = useState(false);
+  const [mintingError, setMintingError] = useState(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -38,15 +43,52 @@ const Sidebar = () => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
+  const handleMint = async () => {
+    setIsMinting(true);
+    setMintingError(null);
+    try {
+      const erc20 = new ethers.Contract(
+        ERC20_CONTRACT_ADDRESS,
+        ENCRYPTEDERC20ABI,
+        signer
+      );
+      const tx = await erc20.mint(1000);
+      await tx.wait();
+    } catch (error) {
+      console.error("Minting error:", error);
+      setMintingError("Failed to mint tokens. Please try again.");
+    } finally {
+      setIsMinting(false);
+    }
+  };
+
   return (
     <div className="h-screen overflow-hidden p-8 fixed md:w-[350px] flex flex-col border-r">
-      <Image
-        src="/logo/inco-blue.svg"
-        alt="Logo"
-        width={123}
-        height={33}
-        className="cursor-pointer"
-      />
+      <div className="flex items-center justify-between">
+        <Image
+          src="/logo/inco-blue.svg"
+          alt="Logo"
+          width={123}
+          height={33}
+          className="cursor-pointer"
+        />
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          animate="visible"
+          className="w-12 h-12 hover:bg-blue-500/5 cursor-pointer border rounded-lg grid place-items-center"
+          onClick={handleMint}
+          disabled={isMinting}
+        >
+          {isMinting ? (
+            <Coins className="w-6 h-6 text-blue-800 animate-spin" />
+          ) : (
+            <Coins className="w-6 h-6 text-blue-800" />
+          )}
+        </motion.div>
+      </div>
 
       <motion.div
         className="mt-8 flex-grow"

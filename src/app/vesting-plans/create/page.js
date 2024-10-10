@@ -17,6 +17,7 @@ import {
 import { useFhevm } from "@/fhevm/fhevm-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const Page = () => {
   const router = useRouter();
@@ -119,6 +120,7 @@ const Page = () => {
       );
       await createTx.wait();
       console.log("Vesting plan created successfully");
+      toast.success("Vesting plan created successfully");
       // Show success message or redirect
     } catch (error) {
       console.error("Error creating vesting plan:", error);
@@ -146,6 +148,7 @@ const Page = () => {
     );
     await tx.wait();
     console.log(`Approved ${amount} tokens for vesting contract`);
+    toast.success("Approved tokens for vesting contract");
   };
 
   const renderStepContent = () => {
