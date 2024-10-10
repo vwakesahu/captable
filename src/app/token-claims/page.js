@@ -68,17 +68,18 @@ const CreateTokenClaim = () => {
       const balance = await vestingContract.balanceOf(address);
       console.log("Balance:", balance.toString());
 
-      for (let i = 0; i < balance; i++) {
-        const plan = await vestingContract.tokenOfOwnerByIndex(address, i);
-        const planDetails = await vestingContract.plans(plan);
-        console.log("Plan:", plan.toString());
-        console.log("Plan Details:", planDetails);
-      }
+      // for (let i = 0; i < balance; i++) {
+      //   const plan = await vestingContract.tokenOfOwnerByIndex(address, i);
+      //   const planDetails = await vestingContract.plans(plan);
+      //   console.log("Plan:", plan.toString());
+      //   console.log("Plan Details:", planDetails);
+      // }
 
-      const redeemed = await vestingContract.redeemAllPlans();
+      const redeemed = await vestingContract.redeemPlan(balance);
+      await redeemed.wait();
       console.log("Redemption transaction:", redeemed);
       console.log("Redeemed all plans");
-      toast.success("Redeemed all plans successfully");
+      toast.success("Plan Redeemed Successfully!!");
     } catch (error) {
       toast.error("Error redeeming plans. Please try again.");
       console.error("Error redeeming plans:", error);
@@ -95,7 +96,7 @@ const CreateTokenClaim = () => {
         disabled={isRedeeming}
         className="w-auto"
       >
-        {isRedeeming ? "Redeeming..." : "Redeem All Plans"}
+        {isRedeeming ? "Redeeming..." : "Redeem Plan"}
       </Button>
     </div>
   );

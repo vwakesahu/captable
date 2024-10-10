@@ -1,7 +1,7 @@
 import vestingABI from "@/abi/vesting.json";
 export const VESTINGABI = vestingABI;
 export const VESTING_CONTRACT_ADDRESS =
-  "0xE1f65aa040e825A5F8FD8a1A3a0Ed84026d81c50";
+  "0xFfb60C7684BEe2118266586226e08Cf7c6427095";
 
 import encyptedERC20ABI from "@/abi/encryptedERC20.json";
 export const ENCRYPTEDERC20ABI = encyptedERC20ABI;
