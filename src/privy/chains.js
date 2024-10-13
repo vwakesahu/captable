@@ -11,16 +11,16 @@ export const incoNetwork = {
   },
   rpcUrls: {
     default: {
-      http: ["https://validator.rivest.inco.org/"],
+      http: ["https://validator.rivest.inco.org"],
     },
     public: {
-      http: ["https://validator.rivest.inco.org/"],
+      http: ["https://validator.rivest.inco.org"],
     },
   },
   blockExplorers: {
     default: {
       name: "Explorer",
-      url: "https://explorer.rivest.inco.org/",
+      url: "https://explorer.rivest.inco.org",
     },
   },
 };
