@@ -2,11 +2,11 @@ export const chainsName = { inco: "Inco" };
 
 export const incoNetwork = {
   id: 9000,
-  network: "Inco Rivest Testnet",
-  name: "INCO",
+  network: "Evmos",
+  name: "Evmos Testnet",
   nativeCurrency: {
-    name: "INCO",
-    symbol: "INCO",
+    name: "tEVMOS",
+    symbol: "tEVMOS",
     decimals: 18,
   },
   rpcUrls: {
@@ -20,7 +20,7 @@ export const incoNetwork = {
   blockExplorers: {
     default: {
       name: "Explorer",
-      url: "https://explorer.testnet.inco.org",
+      url: "https://explorer.rivest.inco.org/",
     },
   },
 };
